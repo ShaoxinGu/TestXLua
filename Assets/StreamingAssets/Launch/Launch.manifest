@@ -1,0 +1,11 @@
+ManifestFileVersion: 0
+CRC: 1700303191
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: gameassets_launch
+      Dependencies:
+        Dependency_0: gameassets_launch_mat
+    Info_1:
+      Name: gameassets_launch_mat
+      Dependencies: {}

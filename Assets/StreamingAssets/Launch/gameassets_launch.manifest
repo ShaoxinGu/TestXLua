@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 866874053
+CRC: 3369281651
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 57589f1b1fa50e66bd31772502d57618
+    Hash: 8411387d6fc95f4c621b63d0d248869f
   TypeTreeHash:
     serializedVersion: 2
     Hash: 7f8ec55d5fb724d4d0b863bbf950e92d
@@ -27,4 +27,4 @@ SerializeReferenceClassIdentifiers: []
 Assets:
 - Assets/GameAssets/Launch/Sphere.prefab
 Dependencies:
-- /Users/philip/Documents/TestXLua/Assets/StreamingAssets/Launch/gameassets_launch_mat
+- D:/Documents/TestXLua/Assets/StreamingAssets/Launch/gameassets_launch_mat

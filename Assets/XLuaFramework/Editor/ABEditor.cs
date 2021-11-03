@@ -55,7 +55,6 @@ public class ABEditor
 
             string moduleName = moduleDir.Name;
             ScanChildDirectories(moduleDir);
-            AssetDatabase.Refresh();
 
             string modueleOutputPath = abOutputPath + "/" + moduleName;
             if (Directory.Exists(modueleOutputPath))
@@ -67,7 +66,7 @@ public class ABEditor
             BuildPipeline.BuildAssetBundles(modueleOutputPath, assetBundleBuildList.ToArray(), BuildAssetBundleOptions.None, EditorUserBuildSettings.activeBuildTarget);
 
             CalculateDependencies();
-
+            SaveModuleABConfig(moduleName);
             AssetDatabase.Refresh();
         }
         #endregion
@@ -111,7 +110,7 @@ public class ABEditor
 
         if (assetNames.Count > 0)
         {
-            string assetBundleName = directoryInfo.FullName.Substring(Application.dataPath.Length + 1).Replace('/', '_').ToLower();
+            string assetBundleName = directoryInfo.FullName.Substring(Application.dataPath.Length + 1).Replace('\\', '_').ToLower();
             AssetBundleBuild build = new AssetBundleBuild();
             build.assetBundleName = assetBundleName;
             build.assetNames = new string[assetNames.Count];
@@ -167,8 +166,60 @@ public class ABEditor
         }
     }
 
+    /// <summary>
+    /// 将一个模块的资源依赖关系数据保存成json格式的文件
+    /// </summary>
+    /// <param name="moduleName"></param>
     private static void SaveModuleABConfig(string moduleName)
     {
-        ModuleABConfig moduleConfig = new ModuleABConfig(assetToBundle.Count);
+        ModuleABConfig moduleABConfig = new ModuleABConfig(assetToBundle.Count);
+
+        //记录AB包信息
+        foreach(AssetBundleBuild build in assetBundleBuildList)
+        {
+            BundleInfo bundleInfo = new BundleInfo();
+            bundleInfo.bundleName = build.assetBundleName;
+            bundleInfo.assets = new List<string>();
+            foreach(string asset in build.assetNames)
+            {
+                bundleInfo.assets.Add(asset);
+            }
+            //计算一个bundle文件的CRC散列码
+            string abFilePath = abOutputPath + "/" + moduleName + "/" + bundleInfo.bundleName;
+            using (FileStream stream = File.OpenRead(abFilePath))
+            {
+                bundleInfo.crc = AssetUtility.GetCRC32Hash(stream);
+            }
+            moduleABConfig.AddBundle(moduleName, bundleInfo);
+        }
+
+        //记录每个资源的依赖关系
+        int assetIndex = 0;
+        foreach(var item in assetToBundle)
+        {
+            AssetInfo assetInfo = new AssetInfo();
+            assetInfo.assetPath = item.Key;
+            assetInfo.bundleName = item.Value;
+            assetInfo.dependancies = new List<string>();
+
+            bool result = assetToDependencies.TryGetValue(item.Key, out List<string> dependancies);
+            if (result)
+                assetInfo.dependancies = dependancies;
+            else
+                assetInfo.dependancies = new List<string>();
+            moduleABConfig.AddAsset(assetIndex, assetInfo);
+            assetIndex++;
+        }
+
+        //开始写入Json文件
+        string moduleConfigName = moduleName.ToLower() + ".json";
+        string jsonPath = abOutputPath + "/" + moduleName + "/" + moduleConfigName;
+
+        if (File.Exists(jsonPath))
+            File.Delete(jsonPath);
+
+        File.Create(jsonPath).Dispose();
+        string jsonData = LitJson.JsonMapper.ToJson(moduleABConfig);
+        File.WriteAllText(jsonPath, jsonData, System.Text.Encoding.UTF8);
     }
 }

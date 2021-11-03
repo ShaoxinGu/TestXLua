@@ -3,49 +3,49 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Ò»¸öbundleÊı¾İ¡¾ÓÃÓÚĞòÁĞ»¯ÎªjsonÎÄ¼ş¡¿
+/// ä¸€ä¸ªbundleæ•°æ®ã€ç”¨äºåºåˆ—åŒ–ä¸ºjsonæ–‡ä»¶ã€‘
 /// </summary>
 public class BundleInfo
 {
     /// <summary>
-    /// Õâ¸öbundleµÄÃû×Ö
+    /// è¿™ä¸ªbundleçš„åå­—
     /// </summary>
     public string bundleName;
 
     /// <summary>
-    /// Õâ¸öbundle×ÊÔ´µÄcrcÉ¢ÁĞÂë
+    /// è¿™ä¸ªbundleèµ„æºçš„crcæ•£åˆ—ç 
     /// </summary>
     public string crc;
 
     /// <summary>
-    /// Õâ¸öbundleËù°üº¬µÄ×ÊÔ´µÄÂ·¾¶ÁĞ±í
+    /// è¿™ä¸ªbundleæ‰€åŒ…å«çš„èµ„æºçš„è·¯å¾„åˆ—è¡¨
     /// </summary>
     public List<string> assets;
 }
 
 /// <summary>
-/// Ò»¸öAssetÊı¾İ¡¾ÓÃÓÚĞòÁĞ»¯ÎªjsonÎÄ¼ş¡¿
+/// ä¸€ä¸ªAssetæ•°æ®ã€ç”¨äºåºåˆ—åŒ–ä¸ºjsonæ–‡ä»¶ã€‘
 /// </summary>
 public class AssetInfo
 {
     /// <summary>
-    /// Õâ¸ö×ÊÔ´µÄÏà¶ÔÂ·¾¶
+    /// è¿™ä¸ªèµ„æºçš„ç›¸å¯¹è·¯å¾„
     /// </summary>
     public string assetPath;
 
     /// <summary>
-    /// Õâ¸ö×ÊÔ´ËùÊôµÄAssetBundleµÄÃû×Ö
+    /// è¿™ä¸ªèµ„æºæ‰€å±çš„AssetBundleçš„åå­—
     /// </summary>
     public string bundleName;
 
     /// <summary>
-    /// Õâ¸ö×ÊÔ´ËùÒÀÀµµÄAssetBundleÁĞ±íµÄÃû×Ö
+    /// è¿™ä¸ªèµ„æºæ‰€ä¾èµ–çš„AssetBundleåˆ—è¡¨çš„åå­—
     /// </summary>
     public List<string> dependancies;
 }
 
 /// <summary>
-/// ModuleABConfig¶ÔÏó ¶ÔÓ¦Õû¸öµ¥¸öÄ£¿éµÄjsonÎÄ¼ş
+/// ModuleABConfigå¯¹è±¡ å¯¹åº”å•ä¸ªæ¨¡å—çš„jsonæ–‡ä»¶
 /// </summary>
 public class ModuleABConfig
 {
@@ -58,17 +58,17 @@ public class ModuleABConfig
     }
 
     /// <summary>
-    /// ¼ü£ºAssetBundleµÄÃû×Ö Öµ£ºAssetBundleÊı¾İ¶ÔÏó
+    /// é”®ï¼šAssetBundleçš„åå­— å€¼ï¼šAssetBundleä¿¡æ¯
     /// </summary>
     public Dictionary<string, BundleInfo> bundleDict;
 
     /// <summary>
-    /// assetÊı×é
+    /// assetæ•°ç»„
     /// </summary>
     public AssetInfo[] assetArray;
 
     /// <summary>
-    /// ĞÂÔöÒ»¸öbundle¼ÇÂ¼
+    /// æ–°å¢ä¸€ä¸ªbundleè®°å½•
     /// </summary>
     /// <param name="bundleName"></param>
     /// <param name="bundleInfo"></param>
@@ -78,7 +78,7 @@ public class ModuleABConfig
     }
 
     /// <summary>
-    /// ĞÂÔöÒ»¸ö×ÊÔ´¼ÇÂ¼
+    /// æ–°å¢ä¸€ä¸ªèµ„æºè®°å½•
     /// </summary>
     /// <param name="index"></param>
     /// <param name="assetInfo"></param>

@@ -166,4 +166,9 @@ public class ABEditor
             }
         }
     }
+
+    private static void SaveModuleABConfig(string moduleName)
+    {
+        ModuleABConfig moduleConfig = new ModuleABConfig(assetToBundle.Count);
+    }
 }

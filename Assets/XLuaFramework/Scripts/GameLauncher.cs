@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class GameLauncher : MonoBehaviour
 {
-    private void Awake()
+    public async void Awake()
     {
         Instance = this;
         DontDestroyOnLoad(this);
@@ -19,16 +19,22 @@ public class GameLauncher : MonoBehaviour
             moduleUrl = "http://192.168.0.7/8080"
         };
 
-        ModuleManager.Instance.Load(launchConfig, (success) =>
+        bool result = await ModuleManager.Instance.Load(launchConfig);
+        if(result)
         {
             Debug.Log("Lua 代码开始");
-        });
+            AssetLoader.Instance.Clone("Launch", "Assets/GameAssets/Launch/Sphere.prefab");
+
+            GameObject philip = AssetLoader.Instance.Clone("Launch", "Assets/GameAssets/Launch/Philip.prefab");
+            Sprite sprite = AssetLoader.Instance.CreateAsset<Sprite>("Launch", "Assets/GameAssets/Launch/Sprite/header.jpg", philip);
+            philip.GetComponent<SpriteRenderer>().sprite = sprite;
+        }
     }
 
     private void InitGlobal()
     {
         GlobalConfig.hotUpdateh = false;
-        GlobalConfig.bundleMode = false;
+        GlobalConfig.bundleMode = true;
     }
 
     public static GameLauncher Instance;

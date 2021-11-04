@@ -1,5 +1,5 @@
 ManifestFileVersion: 0
-CRC: 2763665887
+CRC: 37428592
 AssetBundleManifest:
   AssetBundleInfos:
     Info_0:
@@ -8,4 +8,7 @@ AssetBundleManifest:
         Dependency_0: gameassets_launch_mat
     Info_1:
       Name: gameassets_launch_mat
+      Dependencies: {}
+    Info_2:
+      Name: gameassets_launch_sprite
       Dependencies: {}

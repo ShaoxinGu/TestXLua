@@ -190,7 +190,7 @@ public class ABEditor
             {
                 bundleInfo.crc = AssetUtility.GetCRC32Hash(stream);
             }
-            moduleABConfig.AddBundle(moduleName, bundleInfo);
+            moduleABConfig.AddBundle(bundleInfo.bundleName, bundleInfo);
         }
 
         //记录每个资源的依赖关系
@@ -220,6 +220,6 @@ public class ABEditor
 
         File.Create(jsonPath).Dispose();
         string jsonData = LitJson.JsonMapper.ToJson(moduleABConfig);
-        File.WriteAllText(jsonPath, jsonData, System.Text.Encoding.UTF8);
+        File.WriteAllText(jsonPath, jsonData);
     }
 }

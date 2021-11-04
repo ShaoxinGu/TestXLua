@@ -1,12 +1,12 @@
 ManifestFileVersion: 0
-CRC: 3369281651
+CRC: 3621597903
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 8411387d6fc95f4c621b63d0d248869f
+    Hash: 6dfe916485ef14188c18dd77888e6bb0
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 7f8ec55d5fb724d4d0b863bbf950e92d
+    Hash: 2a34565056e0726d51646e25bc2145b0
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -21,10 +21,15 @@ ClassTypes:
   Script: {instanceID: 0}
 - Class: 43
   Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
 - Class: 135
+  Script: {instanceID: 0}
+- Class: 212
   Script: {instanceID: 0}
 SerializeReferenceClassIdentifiers: []
 Assets:
+- Assets/GameAssets/Launch/Philip.prefab
 - Assets/GameAssets/Launch/Sphere.prefab
 Dependencies:
 - D:/Documents/TestXLua/Assets/StreamingAssets/Launch/gameassets_launch_mat

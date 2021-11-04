@@ -270,7 +270,7 @@ public class AssetLoader : Singleton<AssetLoader>
         bundleRef.children.Add(assetRef);
 
         //3.从bundle中提取asset
-        assetRef.asset = assetRef.bundleRef.bundle.LoadAsset(assetRef.assetInfo.assetPath);
+        assetRef.asset = assetRef.bundleRef.bundle.LoadAsset(assetRef.assetInfo.assetPath, typeof(T));
         if (typeof(T) == typeof(GameObject) && assetRef.assetInfo.assetPath.EndsWith(".prefab"))
             assetRef.isPrefab = true;
         else

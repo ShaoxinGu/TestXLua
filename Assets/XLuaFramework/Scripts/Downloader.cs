@@ -62,9 +62,9 @@ public class Downloader : Singleton<Downloader>
             return;
         }
 
-        Clear(moduleConfig, removeList);
-
         await ExcuteDownload(moduleConfig, downloadList);
+
+        Clear(moduleConfig, removeList);
 
         return;
     }
@@ -214,7 +214,7 @@ public class Downloader : Singleton<Downloader>
         if (serverConfig == null)
             return null;
 
-        ModuleABConfig localConfig = await AssetLoader.Instance.LoadAssetBundleConfig(PathType.Base, moduleName, moduleName.ToLower() + ".json");
+        ModuleABConfig localConfig = await AssetLoader.Instance.LoadAssetBundleConfig(PathType.Update, moduleName, moduleName.ToLower() + ".json");
         //注意：这里不判断localConfig是否存在，localConfig确实可能不存在，比如在此模块第一次热更之前，本地update路径下没有文件
 
         return CalculateDiff(moduleName, localConfig, serverConfig);

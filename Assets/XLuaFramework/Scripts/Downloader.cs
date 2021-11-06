@@ -34,7 +34,7 @@ public class Downloader : Singleton<Downloader>
             Debug.LogWarning($"下载模块{moduleConfig.moduleName}的AB配置文件：{request.error}");
 
             bool result = await ShowMessageBox("网络异常，请检查网络后重试", "重试", "退出游戏");
-            if(result == false)
+            if (result == false)
             {
                 Application.Quit();
                 return;
@@ -106,7 +106,7 @@ public class Downloader : Singleton<Downloader>
     private long CalculateSize(List<BundleInfo> downloadList)
     {
         long totalSize = 0;
-        foreach(BundleInfo bundleInfo in downloadList)
+        foreach (BundleInfo bundleInfo in downloadList)
         {
             totalSize += bundleInfo.size;
         }
@@ -142,7 +142,7 @@ public class Downloader : Singleton<Downloader>
     {
         string sizeStr = "";
 
-        if(size >= 1024 * 1024)
+        if (size >= 1024 * 1024)
         {
             long m = size / (1024 * 1024);
             size = size % (1024 * 1024);
@@ -193,7 +193,7 @@ public class Downloader : Singleton<Downloader>
         if (downloadList.Count > 0)
         {
             bool result = await ShowMessageBox("网络异常，请检查网络后点击 继续下载", "继续下载", "退出游戏");
-            if(!result)
+            if (!result)
             {
                 Application.Quit();
                 return;

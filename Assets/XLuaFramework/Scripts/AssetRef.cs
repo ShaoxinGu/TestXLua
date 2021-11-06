@@ -3,42 +3,42 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// ÄÚ´æÖĞµÄµ¥¸ö×ÊÔ´¶ÔÏó
+/// å†…å­˜ä¸­çš„å•ä¸ªèµ„æºå¯¹è±¡
 /// </summary>
 public class AssetRef
 {
     /// <summary>
-    /// Õâ¸ö×ÊÔ´µÄÅäÖÃĞÅÏ¢
+    /// è¿™ä¸ªèµ„æºçš„é…ç½®ä¿¡æ¯
     /// </summary>
     public AssetInfo assetInfo;
 
     /// <summary>
-    /// Õâ¸ö×ÊÔ´ËùÊôµÄBundleRef¶ÔÏó
+    /// è¿™ä¸ªèµ„æºæ‰€å±çš„BundleRefå¯¹è±¡
     /// </summary>
     public BundleRef bundleRef;
 
     /// <summary>
-    /// Õâ¸ö×ÊÔ´ËùÒÀÀµµÄBundleRef¶ÔÏóÁĞ±í
+    /// è¿™ä¸ªèµ„æºæ‰€ä¾èµ–çš„BundleRefå¯¹è±¡åˆ—è¡¨
     /// </summary>
     public BundleRef[] dependancies;
 
     /// <summary>
-    /// ´ÓbundleÎÄ¼şÖĞÌáÈ¡³öÀ´µÄ×ÊÔ´¶ÔÏó
+    /// ä»bundleæ–‡ä»¶ä¸­æå–å‡ºæ¥çš„èµ„æºå¯¹è±¡
     /// </summary>
     public Object asset;
 
     /// <summary>
-    /// Õâ¸ö×ÊÔ´ÊÇ·ñÊÇPrefab
+    /// è¿™ä¸ªèµ„æºæ˜¯å¦æ˜¯Prefab
     /// </summary>
     public bool isPrefab;
 
     /// <summary>
-    /// Õâ¸öAssetRef¶ÔÏó±»ÄÄĞ©GameObjectÒÀÀµ
+    /// è¿™ä¸ªAssetRefå¯¹è±¡è¢«å“ªäº›GameObjectä¾èµ–
     /// </summary>
     public List<GameObject> children;
 
     /// <summary>
-    /// AssetRef¶ÔÏóµÄ¹¹Ôìº¯Êı
+    /// AssetRefå¯¹è±¡çš„æ„é€ å‡½æ•°
     /// </summary>
     /// <param name="assetInfo"></param>
     public AssetRef(AssetInfo assetInfo)

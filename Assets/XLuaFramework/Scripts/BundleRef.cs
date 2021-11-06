@@ -3,32 +3,32 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// ÔÚÄÚ´æÖĞµÄÒ»¸öBundle¶ÔÏó
+/// åœ¨å†…å­˜ä¸­çš„ä¸€ä¸ªBundleå¯¹è±¡
 /// </summary>
 public class BundleRef
 {
     /// <summary>
-    /// Õâ¸öbundleµÄ¾²Ì¬ÅäÖÃĞÅÏ¢
+    /// è¿™ä¸ªbundleçš„é™æ€é…ç½®ä¿¡æ¯
     /// </summary>
     public BundleInfo bundleInfo;
 
     /// <summary>
-    /// ¼ÇÂ¼Õâ¸öBundleRef¶ÔÓ¦µÄABÎÄ¼şĞèÒª´ÓÄÄÀï¼ÓÔØ
+    /// è®°å½•è¿™ä¸ªBundleRefå¯¹åº”çš„ABæ–‡ä»¶éœ€è¦ä»å“ªé‡ŒåŠ è½½
     /// </summary>
     public PathType pathType;
 
     /// <summary>
-    /// ¼ÓÔØµ½ÄÚ´æµÄbundle¶ÔÏó
+    /// åŠ è½½åˆ°å†…å­˜çš„bundleå¯¹è±¡
     /// </summary>
     public AssetBundle bundle;
 
     /// <summary>
-    /// Õâ¸öBundleRef±»ÄÄĞ©AssetRef¶ÔÏóÒÀÀµ
+    /// è¿™ä¸ªBundleRefè¢«å“ªäº›AssetRefå¯¹è±¡ä¾èµ–
     /// </summary>
     public List<AssetRef> children;
 
     /// <summary>
-    /// BundleRefµÄ¹¹Ôìº¯Êı
+    /// BundleRefçš„æ„é€ å‡½æ•°
     /// </summary>
     /// <param name="bundleInfo"></param>
     public BundleRef(BundleInfo bundleInfo, PathType pathType)

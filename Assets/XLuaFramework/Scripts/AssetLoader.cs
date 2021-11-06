@@ -13,18 +13,28 @@ using UnityEngine.Networking;
 public class AssetLoader : Singleton<AssetLoader>
 {
     /// <summary>
-    /// 平台对应的只读路径下的资源
-    /// Key 模块名字
-    /// Value 模块所有的资源
+    /// streamingAssetsPath下的资源集合
     /// </summary>
-    public Dictionary<string, Hashtable> moduleToAsset;
+    public Dictionary<string, Hashtable> baseToAsset;
+
+    /// <summary>
+    /// persistentDataPath下的资源集合
+    /// </summary>
+    public Dictionary<string, Hashtable> updateToAsset;
+
+    /// <summary>
+    /// 记录所有的BundleRef对象
+    /// </summary>
+    public Dictionary<string, BundleRef> nameToBundleRef;
 
     /// <summary>
     /// 模块资源加载器的构造函数
     /// </summary>
     public AssetLoader()
     {
-        moduleToAsset = new Dictionary<string, Hashtable>();
+        baseToAsset = new Dictionary<string, Hashtable>();
+        updateToAsset = new Dictionary<string, Hashtable>();
+        nameToBundleRef = new Dictionary<string, BundleRef>();
     }
 
     /// <summary>
@@ -34,14 +44,6 @@ public class AssetLoader : Singleton<AssetLoader>
     /// <returns></returns>
     public Hashtable ConfigAssembly(ModuleABConfig moduleABConfig)
     {
-        Dictionary<string, BundleRef> nameToBundleRef = new Dictionary<string, BundleRef>();
-        foreach (KeyValuePair<string, BundleInfo> keyValue in moduleABConfig.bundleDict)
-        {
-            string bundleName = keyValue.Key;
-            BundleInfo bundleInfo = keyValue.Value;
-            nameToBundleRef[bundleName] = new BundleRef(bundleInfo);
-        }
-
         Hashtable pathToAssetRef = new Hashtable();
         for (int i = 0; i < moduleABConfig.assetArray.Length; i++)
         {
@@ -67,31 +69,13 @@ public class AssetLoader : Singleton<AssetLoader>
     /// <summary>
     /// 加载模块对应的全局AssetBundle资源管理文件
     /// </summary>
-    /// <param name="moduelName">模块的名字</param>
-    public async Task<ModuleABConfig> LoadAssetBundleConfig(string moduelName)
-    {
-#if UNITY_EDITOR
-        if (GlobalConfig.bundleMode)
-        {
-            return await RealLoadAssetBundleConfig(moduelName);
-        }
-        else
-        {
-            return null;
-        }
-#else
-        return await RealLoadAssetBundleConfig(moduelName);
-#endif
-    }
-
-    /// <summary>
-    /// 实际加载AssetBundle资源管理文件
-    /// </summary>
-    /// <param name="moduelName"></param>
+    /// <param name="pathType">路径类型</param>
+    /// <param name="moduelName">模块名字</param>
+    /// <param name="configName">AB资源配置文件的名字</param>
     /// <returns></returns>
-    private async Task<ModuleABConfig> RealLoadAssetBundleConfig(string moduelName)
+    public async Task<ModuleABConfig> LoadAssetBundleConfig(PathType pathType, string moduelName, string configName)
     {
-        string url = Application.streamingAssetsPath + "/" + moduelName + "/" + moduelName.ToLower() + ".json";
+        string url = GetBundlePath(pathType, moduelName, configName);
 
         UnityWebRequest request = UnityWebRequest.Get(url);
 
@@ -116,9 +100,7 @@ public class AssetLoader : Singleton<AssetLoader>
         AssetRef assetRef = LoadAssetRef<GameObject>(moduleName, path);
 
         if (assetRef == null || assetRef.asset == null)
-        {
             return null;
-        }
 
         GameObject gameObject = UnityEngine.Object.Instantiate(assetRef.asset) as GameObject;
 
@@ -147,19 +129,17 @@ public class AssetLoader : Singleton<AssetLoader>
             return null;
         }
 
-        if(gameObject == null)
+        if (gameObject == null)
         {
             Debug.LogError("CreateAsset必须传递一个其将要被挂载的GameObject对象！");
             return null;
         }
 
         AssetRef assetRef = LoadAssetRef<T>(moduleName, assetPath);
-        if(assetRef == null || assetRef.asset == null)
-        {
+        if (assetRef == null || assetRef.asset == null)
             return null;
-        }
 
-        if(assetRef.children == null)
+        if (assetRef.children == null)
         {
             assetRef.children = new List<GameObject>();
         }
@@ -220,12 +200,10 @@ public class AssetLoader : Singleton<AssetLoader>
             return null;
 
         Hashtable moduleToAssetRef;
-        bool moduleExist = moduleToAsset.TryGetValue(moduleName, out moduleToAssetRef);
-        if (!moduleExist)
-        {
-            Debug.LogError("未找到资源对应的模块：moduleName " + moduleName + " assetPath " + assetPath);
-            return null;
-        }
+        if (GlobalConfig.hotUpdate)
+            moduleToAssetRef = updateToAsset[moduleName];
+        else
+            moduleToAssetRef = baseToAsset[moduleName];
 
         AssetRef assetRef = (AssetRef)moduleToAssetRef[assetPath];
         if (assetRef == null)
@@ -235,16 +213,14 @@ public class AssetLoader : Singleton<AssetLoader>
         }
 
         if (assetRef.asset != null)
-        {
             return assetRef;
-        }
 
         //1.处理assetRef依赖的bundleRef列表
         foreach (BundleRef oneBundleRef in assetRef.dependancies)
         {
             if (oneBundleRef.bundle == null)
             {
-                string bundlePath = GetBundlePath(moduleName, oneBundleRef.bundleInfo.bundleName);
+                string bundlePath = GetBundlePath(oneBundleRef.pathType, moduleName, oneBundleRef.bundleInfo.bundleName);
                 oneBundleRef.bundle = AssetBundle.LoadFromFile(bundlePath);
             }
 
@@ -259,7 +235,7 @@ public class AssetLoader : Singleton<AssetLoader>
         BundleRef bundleRef = assetRef.bundleRef;
         if (bundleRef.bundle == null)
         {
-            string bundlePath = GetBundlePath(moduleName, bundleRef.bundleInfo.bundleName);
+            string bundlePath = GetBundlePath(bundleRef.pathType, moduleName, bundleRef.bundleInfo.bundleName);
             bundleRef.bundle = AssetBundle.LoadFromFile(bundlePath);
         }
 
@@ -270,7 +246,7 @@ public class AssetLoader : Singleton<AssetLoader>
         bundleRef.children.Add(assetRef);
 
         //3.从bundle中提取asset
-        assetRef.asset = assetRef.bundleRef.bundle.LoadAsset(assetRef.assetInfo.assetPath, typeof(T));
+        assetRef.asset = assetRef.bundleRef.bundle.LoadAsset<T>(assetRef.assetInfo.assetPath);
         if (typeof(T) == typeof(GameObject) && assetRef.assetInfo.assetPath.EndsWith(".prefab"))
             assetRef.isPrefab = true;
         else
@@ -285,8 +261,11 @@ public class AssetLoader : Singleton<AssetLoader>
     /// <param name="moduleName"></param>
     /// <param name="bundleName"></param>
     /// <returns></returns>
-    private string GetBundlePath(string moduleName, string bundleName)
+    private string GetBundlePath(PathType pathType, string moduleName, string bundleName)
     {
-        return Application.streamingAssetsPath + "/" + moduleName + "/" + bundleName;
+        if (pathType == PathType.Update)
+            return Application.persistentDataPath + "/Bundles/" + moduleName + "/" + bundleName;
+        else
+            return Application.streamingAssetsPath + "/" + moduleName + "/" + bundleName;
     }
 }

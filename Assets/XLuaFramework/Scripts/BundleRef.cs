@@ -13,6 +13,11 @@ public class BundleRef
     public BundleInfo bundleInfo;
 
     /// <summary>
+    /// 记录这个BundleRef对应的AB文件需要从哪里加载
+    /// </summary>
+    public PathType pathType;
+
+    /// <summary>
     /// 加载到内存的bundle对象
     /// </summary>
     public AssetBundle bundle;
@@ -26,8 +31,9 @@ public class BundleRef
     /// BundleRef的构造函数
     /// </summary>
     /// <param name="bundleInfo"></param>
-    public BundleRef(BundleInfo bundleInfo)
+    public BundleRef(BundleInfo bundleInfo, PathType pathType)
     {
         this.bundleInfo = bundleInfo;
+        this.pathType = pathType;
     }
 }

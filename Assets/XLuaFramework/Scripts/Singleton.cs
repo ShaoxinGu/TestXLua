@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Singleton<T> where T:new()
+public class Singleton<T> where T : new()
 {
     private static T instance;
 
@@ -10,7 +10,7 @@ public class Singleton<T> where T:new()
     {
         get
         {
-            if(instance == null)
+            if (instance == null)
             {
                 instance = new T();
             }

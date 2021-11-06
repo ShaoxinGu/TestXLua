@@ -35,8 +35,10 @@ public class ABEditor
     /// </summary>
     public static Dictionary<string, List<string>> assetToDependencies = new Dictionary<string, List<string>>();
 
-    [MenuItem("AssetBundle/BuildAssetBundle")]
-    public static void BuildAssetBundle()
+    /// <summary>
+    /// 打包AssetBundle资源，内部函数
+    /// </summary>
+    private static void BuildAssetBundle()
     {
         Debug.Log("开始--->>>生成所有模块的AB包！");
         if (Directory.Exists(abOutputPath))
@@ -67,11 +69,149 @@ public class ABEditor
 
             CalculateDependencies();
             SaveModuleABConfig(moduleName);
+
+            DeleteManifest(modueleOutputPath);
+            File.Delete(modueleOutputPath + "/" + moduleName);
+
             AssetDatabase.Refresh();
         }
         #endregion
 
         Debug.Log("结束--->>>生成所有模块的AB包！");
+    }
+
+    /// <summary>
+    /// 打本地测试包
+    /// </summary>
+    [MenuItem("AssetBundle/BuildAssetBundle_Dev")]
+    public static void BuildAssetBundle_Dev()
+    {
+        abOutputPath = Application.streamingAssetsPath;
+        BuildAssetBundle();
+    }
+
+    /// <summary>
+    /// 打正式大版本的版本资源
+    /// </summary>
+    [MenuItem("AssetBundle/BuildAssetBundle_Base")]
+    public static void BuildAssetBundle_Base()
+    {
+        abOutputPath = Application.dataPath + "/../AssetBundle_Base";
+        BuildAssetBundle();
+    }
+
+    /// <summary>
+    /// 正式打热更版本包
+    /// </summary>
+    [MenuItem("AssetBundle/BuildAssetBundle_Update")]
+    public static void BuildAssetBundle_Update()
+    {
+        // 1.现在AssetBundle_Update文件夹中把AB包都生成出来
+        abOutputPath = Application.dataPath + "/../AssetBundle_Update";
+        BuildAssetBundle();
+
+        // 2.再和AssetBundle_Base的资源版本进行比对，删除那些和AssetBundle_Base版本一样的资源
+
+        string baseABPath = Application.dataPath + "/../AssetBundle_Base";
+        if(!Directory.Exists(baseABPath))
+        {
+            Debug.LogWarning("找不到热更包对应的母包");
+            return;
+        }
+        string updateABPath = abOutputPath;
+
+        DirectoryInfo baseDir = new DirectoryInfo(baseABPath);
+
+        //遍历baseABPath下的所有模块
+        DirectoryInfo[] dirs = baseDir.GetDirectories();
+        foreach (DirectoryInfo moduleDir in dirs)
+        {
+            string moduleName = moduleDir.Name;
+            ModuleABConfig baseABConfig = LoadABConfig(baseABPath + "/" + moduleName + "/" + moduleName.ToLower() + ".json");
+            ModuleABConfig updateABConfig = LoadABConfig(updateABPath + "/" + moduleName + "/" + moduleName.ToLower() + ".json");
+
+            //计算出那些跟base版本比没有变化的bundle文件，即需要从热更包中删除的文件
+            List<BundleInfo> removeList = Calculate(baseABConfig, updateABConfig);
+            foreach (BundleInfo bundleInfo in removeList)
+            {
+                string filePath = updateABPath + "/" + moduleName + "/" + bundleInfo.bundleName;
+                File.Delete(filePath);
+                //同时需要处理一下热更包版本里的AB资源配置文件
+                updateABConfig.bundleDict.Remove(bundleInfo.bundleName);
+            }
+
+            //重新生成热更包的AB资源配置文件
+            string jsonPath = updateABPath + "/" + moduleName + "/" + moduleName.ToLower() + ".json";
+            if (File.Exists(jsonPath))
+                File.Delete(jsonPath);
+            File.Create(jsonPath).Dispose();
+
+            string jsonData = LitJson.JsonMapper.ToJson(updateABConfig);
+            File.WriteAllText(jsonPath, jsonData);
+        }
+    }
+
+    /// <summary>
+    /// 计算热更包中需要删除的bundle文件列表
+    /// </summary>
+    /// <param name="baseABConfig"></param>
+    /// <param name="updateABConfig"></param>
+    /// <returns></returns>
+    private static List<BundleInfo> Calculate(ModuleABConfig baseABConfig, ModuleABConfig updateABConfig)
+    {
+        // 收集所有的base版本的bundle文件，放到这个baseBundleDict字典中
+        Dictionary<string, BundleInfo> baseBundleDict = new Dictionary<string, BundleInfo>();
+        if (baseABConfig != null)
+        {
+            foreach (BundleInfo bundleInfo in baseABConfig.bundleDict.Values)
+            {
+                string uniqueId = string.Format("{0}/{1}", bundleInfo.bundleName, bundleInfo.crc);
+                baseBundleDict.Add(uniqueId, bundleInfo);
+            }
+        }
+
+        // 遍历Update版本中的bundle文件，把那些需要删除的bundle放入下面的removeList容器中
+        List<BundleInfo> removeList = new List<BundleInfo>();
+        foreach (BundleInfo bundleInfo in updateABConfig.bundleDict.Values)
+        {
+            string uniqueId = string.Format("{0}/{1}", bundleInfo.bundleName, bundleInfo.crc);
+            if (baseBundleDict.ContainsKey(uniqueId))
+            {
+                removeList.Add(bundleInfo);
+            }
+        }
+        return removeList;
+    }
+
+    /// <summary>
+    /// 读取AB配置文件的工具函数
+    /// </summary>
+    /// <param name="abConfigPath"></param>
+    /// <returns></returns>
+    private static ModuleABConfig LoadABConfig(string abConfigPath)
+    {
+        return LitJson.JsonMapper.ToObject<ModuleABConfig>(File.ReadAllText(abConfigPath));
+    }
+
+    /// <summary>
+    /// 删除Unity生成的manifest文件
+    /// </summary>
+    /// <param name="modueleOutputPath">模块对应的ab文件输出路径</param>
+    private static void DeleteManifest(string modueleOutputPath)
+    {
+        FileInfo[] files = new DirectoryInfo(modueleOutputPath).GetFiles();
+        foreach(FileInfo file in files)
+        {
+            if(file.Name.EndsWith(".manifest"))
+            {
+                file.Delete();
+            }
+        }
+    }
+
+    private static byte[] ConvertJsonString(string jsonData)
+    {
+        throw new NotImplementedException();
     }
 
     /// <summary>
@@ -175,12 +315,12 @@ public class ABEditor
         ModuleABConfig moduleABConfig = new ModuleABConfig(assetToBundle.Count);
 
         //记录AB包信息
-        foreach(AssetBundleBuild build in assetBundleBuildList)
+        foreach (AssetBundleBuild build in assetBundleBuildList)
         {
             BundleInfo bundleInfo = new BundleInfo();
             bundleInfo.bundleName = build.assetBundleName;
             bundleInfo.assets = new List<string>();
-            foreach(string asset in build.assetNames)
+            foreach (string asset in build.assetNames)
             {
                 bundleInfo.assets.Add(asset);
             }
@@ -189,13 +329,14 @@ public class ABEditor
             using (FileStream stream = File.OpenRead(abFilePath))
             {
                 bundleInfo.crc = AssetUtility.GetCRC32Hash(stream);
+                bundleInfo.size = (int)stream.Length;
             }
             moduleABConfig.AddBundle(bundleInfo.bundleName, bundleInfo);
         }
 
         //记录每个资源的依赖关系
         int assetIndex = 0;
-        foreach(var item in assetToBundle)
+        foreach (var item in assetToBundle)
         {
             AssetInfo assetInfo = new AssetInfo();
             assetInfo.assetPath = item.Key;

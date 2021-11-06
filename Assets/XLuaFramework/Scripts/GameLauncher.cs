@@ -15,25 +15,30 @@ public class GameLauncher : MonoBehaviour
         ModuleConfig launchConfig = new ModuleConfig()
         {
             moduleName = "Launch",
-            moduleVersion = "202110281116",
-            moduleUrl = "http://192.168.0.7/8080"
+            moduleVersion = "202111051259",
+            moduleUrl = "http://192.168.0.106:8000/"
         };
 
         bool result = await ModuleManager.Instance.Load(launchConfig);
-        if(result)
+        if (result)
         {
             Debug.Log("Lua 代码开始");
             AssetLoader.Instance.Clone("Launch", "Assets/GameAssets/Launch/Sphere.prefab");
 
             GameObject philip = AssetLoader.Instance.Clone("Launch", "Assets/GameAssets/Launch/Philip.prefab");
-            Sprite sprite = AssetLoader.Instance.CreateAsset<Sprite>("Launch", "Assets/GameAssets/Launch/Sprite/header.jpg", philip);
+            Sprite sprite = AssetLoader.Instance.CreateAsset<Sprite>("Launch", "Assets/GameAssets/Launch/Sprites/header.jpg", philip);
             philip.GetComponent<SpriteRenderer>().sprite = sprite;
         }
     }
 
+    public void Update()
+    {
+        //执行卸载策略
+    }
+
     private void InitGlobal()
     {
-        GlobalConfig.hotUpdateh = false;
+        GlobalConfig.hotUpdate = true;
         GlobalConfig.bundleMode = true;
     }
 

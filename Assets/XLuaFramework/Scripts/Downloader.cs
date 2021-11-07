@@ -293,7 +293,9 @@ public class Downloader : Singleton<Downloader>
 #elif UNITY_IOS
         return string.Format("{0}/{1}/{2}", moduleConfig.DownloadURL, "iOS", fileName);
 #elif UNITY_STANDALONE_WIN
-        return string.Format("{0}/{1}/{2}", moduleConfig.DownloadURL, "StandaloneWindows64", fileName);
+        return string.Format("{0}/{1}/{2}", moduleConfig.DownloadURL, "StandaloneWin", fileName);
+#elif UNITY_STANDALONE_OSX
+        return string.Format("{0}/{1}/{2}", moduleConfig.DownloadURL, "StandaloneMac", fileName);
 #endif
     }
 }

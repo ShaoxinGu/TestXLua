@@ -66,6 +66,11 @@ public class AssetLoader : Singleton<AssetLoader>
         return pathToAssetRef;
     }
 
+    internal void Unload(Dictionary<string, Hashtable> baseToAsset)
+    {
+        //TODO 实现卸载资源
+    }
+
     /// <summary>
     /// 加载模块对应的全局AssetBundle资源管理文件
     /// </summary>

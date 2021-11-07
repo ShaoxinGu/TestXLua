@@ -53,7 +53,6 @@ public class ModuleManager : Singleton<ModuleManager>
             string bundleName = keyValue.Key;
             BundleInfo bundleInfo = keyValue.Value;
 
-            Debug.Log("装配热更BundleRef：" + bundleName);
             AssetLoader.Instance.nameToBundleRef[bundleName] = new BundleRef(bundleInfo, PathType.Update);
         }
         return true;
@@ -74,7 +73,6 @@ public class ModuleManager : Singleton<ModuleManager>
             string bundleName = keyValue.Key;
             if (!AssetLoader.Instance.nameToBundleRef.ContainsKey(bundleName))
             {
-                Debug.Log("装配基础BundleRef：" + bundleName);
                 BundleInfo bundleInfo = keyValue.Value;
                 AssetLoader.Instance.nameToBundleRef[bundleName] = new BundleRef(bundleInfo, PathType.Base);
             }

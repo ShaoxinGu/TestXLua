@@ -50,7 +50,7 @@ public class Downloader : Singleton<Downloader>
         long downloadSize = CalculateSize(downloadList);
         if (downloadSize == 0)
         {
-            Debug.Log("无需更新");
+            Debug.Log("无需更新！");
             Clear(moduleConfig, removeList);
             return;
         }
@@ -238,7 +238,6 @@ public class Downloader : Singleton<Downloader>
             foreach (BundleInfo bundleInfo in localConfig.bundleDict.Values)
             {
                 string uniqueId = string.Format("{0}|{1}", bundleInfo.bundleName, bundleInfo.crc);
-                Debug.Log("--- " + uniqueId);
                 localBundleDict.Add(uniqueId, bundleInfo);
             }
         }
@@ -248,7 +247,6 @@ public class Downloader : Singleton<Downloader>
         foreach (BundleInfo bundleInfo in serverConfig.bundleDict.Values)
         {
             string uniqueId = string.Format("{0}|{1}", bundleInfo.bundleName, bundleInfo.crc);
-            Debug.Log("+++ " + uniqueId);
             if (localBundleDict.ContainsKey(uniqueId))
             {
                 localBundleDict.Remove(uniqueId);

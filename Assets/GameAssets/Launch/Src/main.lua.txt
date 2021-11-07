@@ -1,0 +1,15 @@
+Main = {}
+
+function Main:Awake()
+	print(self.MonoProxy.gameObject.name)
+end
+
+function Main:Start()
+
+end
+
+function Main:OnDestroy()
+
+end
+
+return Main;

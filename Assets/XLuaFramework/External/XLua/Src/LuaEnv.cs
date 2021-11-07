@@ -118,6 +118,10 @@ namespace XLua
 
                 AddBuildin("CS", StaticLuaCallbacks.LoadCS);
 
+                AddBuildin("pb", XLua.LuaDLL.Lua.LoadPB);
+
+                AddBuildin("rapidjson", LuaDLL.Lua.LoadRapidJson);
+
                 LuaAPI.lua_newtable(rawL); //metatable of indexs and newindexs functions
                 LuaAPI.xlua_pushasciistring(rawL, "__index");
                 LuaAPI.lua_pushstdcallcfunction(rawL, StaticLuaCallbacks.MetaFuncIndex);

@@ -43,9 +43,9 @@ public class Downloader : Singleton<Downloader>
             return;
         }
 
-        Tuple<List<BundleInfo>, BundleInfo[]> tuple = await GetDownloadList(moduleConfig.moduleName);
+        Tuple<List<BundleInfo>, List<BundleInfo>> tuple = await GetDownloadList(moduleConfig.moduleName);
         List<BundleInfo> downloadList = tuple.Item1;
-        BundleInfo[] removeList = tuple.Item2;
+        List<BundleInfo> removeList = tuple.Item2;
 
         long downloadSize = CalculateSize(downloadList);
         if (downloadSize == 0)
@@ -74,13 +74,13 @@ public class Downloader : Singleton<Downloader>
     /// </summary>
     /// <param name="moduleConfig"></param>
     /// <param name="removeList"></param>
-    private void Clear(ModuleConfig moduleConfig, BundleInfo[] removeList)
+    private void Clear(ModuleConfig moduleConfig, List<BundleInfo> removeList)
     {
         string moduleName = moduleConfig.moduleName;
         string updatePath = GetUpdatePath(moduleName);
 
         //删除不需要的本地bundle文件
-        for (int i = removeList.Length - 1; i >= 0; i--)
+        for (int i = removeList.Count - 1; i >= 0; i--)
         {
             BundleInfo bundleInfo = removeList[i];
             string filePath = string.Format("{0}/{1}", updatePath, bundleInfo.bundleName);
@@ -208,7 +208,7 @@ public class Downloader : Singleton<Downloader>
     /// </summary>
     /// <param name="moduleName"></param>
     /// <returns></returns>
-    private async Task<Tuple<List<BundleInfo>, BundleInfo[]>> GetDownloadList(string moduleName)
+    private async Task<Tuple<List<BundleInfo>, List<BundleInfo>>> GetDownloadList(string moduleName)
     {
         ModuleABConfig serverConfig = await AssetLoader.Instance.LoadAssetBundleConfig(PathType.Update, moduleName, moduleName.ToLower() + "_temp.json");
         if (serverConfig == null)
@@ -227,9 +227,10 @@ public class Downloader : Singleton<Downloader>
     /// <param name="localConfig"></param>
     /// <param name="serverConfig"></param>
     /// <returns></returns>
-    private Tuple<List<BundleInfo>, BundleInfo[]> CalculateDiff(string moduleName, ModuleABConfig localConfig, ModuleABConfig serverConfig)
+    private Tuple<List<BundleInfo>, List<BundleInfo>> CalculateDiff(string moduleName, ModuleABConfig localConfig, ModuleABConfig serverConfig)
     {
         List<BundleInfo> downloadList = new List<BundleInfo>();
+        List<BundleInfo> removeList = new List<BundleInfo>();
 
         //记录需要删除的本地bundle文件列表
         Dictionary<string, BundleInfo> localBundleDict = new Dictionary<string, BundleInfo>();
@@ -242,25 +243,31 @@ public class Downloader : Singleton<Downloader>
             }
         }
 
-        //1.找到那些有差异的bundle文件，放到bundleList容器中
-        //2.对于那些遗留在本地的无用的bundle文件，把它过滤在localBundleDict容器里
+        //1.找到那些有差异的bundle文件，放到downloadList容器中
         foreach (BundleInfo bundleInfo in serverConfig.bundleDict.Values)
         {
             string uniqueId = string.Format("{0}|{1}", bundleInfo.bundleName, bundleInfo.crc);
-            if (localBundleDict.ContainsKey(uniqueId))
-            {
-                localBundleDict.Remove(uniqueId);
-            }
-            else
+
+            if (localBundleDict.ContainsKey(uniqueId) == false)
             {
                 downloadList.Add(bundleInfo);
             }
         }
 
-        //对于那些遗留在本地的无用的bundle文件，要清除，不然本地文件越积累越多
-        BundleInfo[] removeList = localBundleDict.Values.ToArray();
+        //2.对于那些遗留在本地的无用的bundle文件，放到removeList容器中
+        if (localConfig != null)
+        {
+            foreach (KeyValuePair<string, BundleInfo> localBundle in localConfig.bundleDict)
+            {
+                if (!serverConfig.bundleDict.ContainsKey(localBundle.Key))
+                {
+                    removeList.Add(localBundle.Value);
+                }
+            }
+        }
 
-        return new Tuple<List<BundleInfo>, BundleInfo[]>(downloadList, removeList);
+        // 返回 需要下载的Bundle列表和需要删除的本地Bundle列表
+        return new Tuple<List<BundleInfo>, List<BundleInfo>>(downloadList, removeList);
     }
 
     /// <summary>

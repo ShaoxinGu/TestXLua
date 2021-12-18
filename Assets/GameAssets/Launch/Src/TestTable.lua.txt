@@ -1,7 +1,68 @@
 TestTable = {}
 
+-- 测试TCP网络的启动
+function TestTable:TCPConnect(OnTCPPacket, OnConnectSuccess, OnConnectFail, OnConnectDisconnect)
+    self.client = CS.TCPClient()
+    self.client:Connect("127.0.0.1", 8899)
+    
+    self.OnTCPPacket = OnTCPPacket
+    self.OnConnectSuccess = OnConnectSuccess
+    self.OnConnectFail = OnConnectFail
+    self.OnConnectDisconnect = OnConnectDisconnect
+end
+
+-- 测试TCP网络的Update
+function TestTable:TCPUpdate()
+    if self.client ~= nil then
+        local packets = self.client:GetPackets()
+        for i = 0, packets.Count - 1 do
+            local packet = packets[i]
+            if packet.packetType == CS.PacketType.TCPPacket then
+                self.OnTCPPacket(packet)
+            elseif packet.packetType == CS.PacketType.ConnectSuccess then
+                self.OnConnectSuccess()
+            elseif packet.packetType == CS.PacketType.ConnectFail then
+                self.OnConnectFail()
+            elseif packet.packetType == CS.PacketType.OnConnectDisconnect then
+                self.OnConnectDisconnect()
+            end
+        end
+    end
+end
+
+-- 测试TCP网络的销毁
+function TestTable:TCPDestroy()
+    if self.client ~= nil then
+        self.client:Disconnect()
+    end
+end
+
+-- 测试创建一个网络包的包体 hero
+function TestTable:TestCreatePB(gameObject)
+    local CreateAssetT = xlua.get_generic_method(CS.AssetLoader, "CreateAsset")
+    local CreateAsset = CreateAssetT(CS.UnityEngine.TextAsset)
+    local protoString = CreateAsset(
+        CS.AssetLoader.Instance,
+        "Launch",
+        "Assets/GameAssets/Launch/Res/Proto/LaunchPB.proto.txt",
+        gameObject
+    ).text
+
+    local parser = (require("protoc")).new()
+    assert(parser:load(protoString, "launchPB.proto"))
+    local hero = {
+        name = "Philip",
+        age = 26
+    }
+
+    -- 序列化成字节流
+    local pb = require("pb")
+    local bytes = assert(pb.encode("LaunchPB.Hero", hero))
+    return bytes
+end
+
 -- 测试PB的序列化和反序列化
-function TestTable.TestPB(gameObject)
+function TestTable:TestPB(gameObject)
     local CreateAssetT = xlua.get_generic_method(CS.AssetLoader, "CreateAsset"); 
     local CreateAsset = CreateAssetT(CS.UnityEngine.TextAsset)
     local protoString = CreateAsset(
@@ -41,7 +102,7 @@ function TestTable.TestPB(gameObject)
     print(data2.contacts[2].phonenumber)
 end
 
-function TestTable.TestJson()
+function TestTable:TestJson()
     local rapidJson = require("rapidjson")
     local t = rapidJson.decode('{"a":123}')
     print(t.a)

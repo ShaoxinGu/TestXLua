@@ -356,7 +356,7 @@ public class TCPClient
     /// <summary>
     /// 断开网络连接，有可能是io线程调用，也可能是主线程调用
     /// </summary>
-    private void Disconnect()
+    public void Disconnect()
     {
         lock(this)
         {

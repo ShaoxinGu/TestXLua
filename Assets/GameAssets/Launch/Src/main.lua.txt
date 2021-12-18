@@ -1,17 +1,44 @@
 Main = {}
 
-function Main:Awake()
-	print(self.MonoProxy.gameObject.name)
+function Main.Awake()
+	Main.MonoProxy:BindUpdate(function()
+		Main.testTable:TCPUpdate()	
+	end)
 end
 
-function Main:Start()
-	local testTable = require("TestTable")
-	testTable:TestPB(self.MonoProxy.gameObject)
-	testTable:TestJson()
+function Main.Start()
+	Main.testTable = require("TestTable")
+
+	Main.testTable:TCPConnect(
+		Main.OnTCPPacket,
+		Main.OnTCPConnectSuccess,
+		Main.OnTCPConnectFail,
+		Main.OnTCPConnectDisconnect
+	)
 end
 
-function Main:OnDestroy()
+function Main:OnTCPPacket()
+	print("收到数据包")
+end
 
+function Main.OnTCPConnectSuccess()
+	print("OnTCPConnectSuccess")
+
+	-- 发送测试网络包
+	local body = Main.testTable:TestCreatePB(Main.MonoProxy.gameObject)
+	Main.testTable.client:SendPacket(1, body)
+end
+
+function Main.OnTCPConnectFail()
+	print("OnTCPConnectFail")
+end
+
+function Main.OnTCPConnectDisconnect()
+	print("OnTCPConnectDisconnect")
+end
+
+function Main.OnDestroy()
+	Main.testTable:TCPDestroy()
 end
 
 return Main;
